@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Full-Stack Developer Portfolio</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com" rel="preconnect"/>
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&amp;display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#0B63D3",
+            "secondary": "#FF7A59",
+            "background-light": "#F3F4F6",
+            "background-dark": "#0F1724",
+            "surface-dark": "#1C2A3E",
+            "text-light": "#F3F4F6",
+            "text-dark": "#0F1724",
+            "text-muted-dark": "#90a9cb",
+            "text-muted-light": "#6b7280",
+          },
+          fontFamily: {
+            "display": ["Inter", "sans-serif"]
+          },
+          borderRadius: {
+            "DEFAULT": "0.75rem", // 12px
+            "lg": "1rem",
+            "xl": "1.5rem",
+            "full": "9999px"
+          },
+        },
+      },
+    }
+  </script>
+
+  <style>
+    .material-symbols-outlined {
+      font-variation-settings:
+        'FILL' 0,
+        'wght' 400,
+        'GRAD' 0,
+        'opsz' 24
+    }
+
+    /* -----------------------
+       Custom animations + utilities
+       ----------------------- */
+    :root{
+      --scanline-color: rgba(11,99,211,0.08);
+      --neon-accent: rgba(11,99,211,0.18);
+      --neon-glow: 0 8px 30px rgba(11,99,211,0.12), 0 2px 6px rgba(255,122,89,0.04);
+    }
+
+    /* background neon scanline overlay */
+    .neon-scanline {
+  position: absolute;
+  inset: 0;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(
+      1200px 600px at 20% 10%,
+      rgba(11,99,211,0.10),
+      transparent 60%
+    ),
+    radial-gradient(
+      800px 400px at 80% 20%,
+      rgba(255,122,89,0.08),
+      transparent 55%
+    );
+  opacity: 0.9;
+}
+
+    .neon-scanline::before{
+      content: "";
+      position: absolute;
+      top: -40%;
+      left: -40%;
+      width: 180%;
+      height: 180%;
+      background:
+        linear-gradient(90deg,
+          rgba(255,255,255,0.00) 0%,
+          rgba(255,255,255,0.02) 20%,
+          rgba(255,255,255,0.00) 40%,
+          rgba(11,99,211,0.04) 50%,
+          rgba(255,122,89,0.02) 60%,
+          rgba(255,255,255,0.00) 100%);
+      transform: rotate(-8deg);
+      filter: blur(18px);
+      opacity: 0.85;
+    }
+    @keyframes scanmove{
+      0% { transform: translateX(-25%) rotate(-8deg); }
+      50% { transform: translateX(25%) rotate(-8deg); }
+      100% { transform: translateX(-25%) rotate(-8deg); }
+    }
+
+    /* subtle floating for hero mockup (floating card) */
+    @keyframes floaty {
+      0% { transform: translateY(0) translateZ(0); }
+      50% { transform: translateY(-10px) translateZ(0); }
+      100% { transform: translateY(0) translateZ(0); }
+    }
+    .floaty { animation: floaty 6s ease-in-out infinite; }
+
+    /* glow pulse for hero heading */
+    @keyframes glowPulse {
+      0% { text-shadow: 0 0 0 rgba(11,99,211,0.0); }
+      50% { text-shadow: 0 6px 30px rgba(11,99,211,0.12); }
+      100% { text-shadow: 0 0 0 rgba(6, 8, 10, 0); }
+    }
+    .glow-pulse { animation: glowPulse 3.5s ease-in-out infinite; }
+
+    /* project card lift + subtle neon border appear */
+    .card-hover {
+      transition: transform .35s cubic-bezier(.2,.9,.2,1), box-shadow .35s ease, border-color .35s ease;
+      will-change: transform;
+    }
+    .card-hover:hover {
+      transform: translateY(-12px) scale(1.01);
+      box-shadow: 0 20px 50px rgba(2,6,23,0.6), 0 6px 20px rgba(11,99,211,0.06);
+      border-color: rgba(11,99,211,0.16);
+    }
+
+    /* 3D tilt base */
+    .tilt {
+      transform-style: preserve-3d;
+      perspective: 1000px;
+      transition: transform 0.18s cubic-bezier(.2,.9,.2,1);
+      will-change: transform;
+    }
+
+    /* ripple effect */
+    .ripple-wrap { position: relative; overflow: hidden; }
+    .ripple {
+      position: absolute;
+      border-radius: 9999px;
+      transform: scale(0);
+      animation: rippleAnim 600ms linear;
+      background: rgba(255,255,255,0.12);
+      pointer-events: none;
+      mix-blend-mode: overlay;
+    }
+    @keyframes rippleAnim {
+      to {
+        transform: scale(4);
+        opacity: 0;
+      }
+    }
+
+    /* typing caret */
+    .typing .caret {
+      display: inline-block;
+      width: 2px;
+      height: 1.05em;
+      margin-left: 6px;
+      background: currentColor;
+      animation: blink 1s steps(2, start) infinite;
+      vertical-align: -0.12em;
+    }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    /* progress bar fill animation (skills) */
+    .progress-track { background: rgba(255,255,255,0.06); border-radius: 999px; height: 10px; overflow: hidden; }
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 999px;
+      transition: width 1.6s cubic-bezier(.2,.9,.2,1);
+      box-shadow: var(--neon-glow);
+    }
+
+    /* reduce motion */
+    @media (prefers-reduced-motion: reduce){
+      .neon-scanline::before, .floaty, .glow-pulse, .card-hover, .tilt, .ripple, .typing .caret, .progress-fill { animation: none !important; transition: none !important; }
+    }
+
+    /* small helpers for overlay particles (css-only, low cost) */
+    .particles {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.12;
+      background-image:
+        radial-gradient(circle at 10% 20%, rgba(255,122,89,0.06) 0 2px, transparent 2px),
+        radial-gradient(circle at 80% 10%, rgba(11,99,211,0.06) 0 2px, transparent 2px),
+        radial-gradient(circle at 30% 80%, rgba(255,255,255,0.03) 0 2px, transparent 2px);
+      background-size: 100% 100%;
+      mix-blend-mode: screen;
+      filter: blur(6px);
+    }
+
+    /* hero image overlay gradient */
+    .hero-frame::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 1rem;
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(11,99,211,0.02));
+      pointer-events: none;
+      mix-blend-mode: overlay;
+    }
+    html {
+        scroll-behavior: smooth;
+    }
+    /* Smooth theme transition */
+body, header, div, section, p, h1, h2, h3, h4 {
+  transition: background-color 0.35s ease, 
+              color 0.35s ease,
+              border-color 0.35s ease;
+}
+#themeToggle span {
+  transition: transform 0.45s ease, opacity 0.3s ease;
+}
+
+.theme-animating #themeToggle span {
+  transform: rotate(180deg);
+  opacity: 0.7;
+}
+
+#themeToggle {
+  transition: background-color 0.3s ease;
+}
+
+  </style>
+</head>
+
+<body class="bg-background-light dark:bg-background-dark font-display text-text-dark dark:text-text-light antialiased">
+  <div class="relative flex min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+    <!-- neon scanline + particles (global overlays) -->
+    <div class="neon-scanline" aria-hidden="true"></div>
+    <div class="particles" aria-hidden="true"></div>
+
+    <div class="layout-container flex h-full grow flex-col">
+      <div class="flex flex-1 justify-center">
+        <div class="layout-content-container flex flex-col w-full max-w-5xl relative z-10">
+          <!-- TopNavBar -->
+          <header
+  class="sticky top-0 z-50 flex items-center justify-between
+         whitespace-nowrap border-b border-white/10
+         bg-background-dark/80 backdrop-blur-sm
+         px-4 py-3 md:px-10
+         rounded-b-lg">
+
+            <div class="flex items-center gap-4">
+              <div class="size-5 text-primary">
+                <svg fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M44 11.2727C44 14.0109 39.8386 16.3957 33.69 17.6364C39.8386 18.877 44 21.2618 44 24C44 26.7382 39.8386 29.123 33.69 30.3636C39.8386 31.6043 44 33.9891 44 36.7273C44 40.7439 35.0457 44 24 44C12.9543 44 4 40.7439 4 36.7273C4 33.9891 8.16144 31.6043 14.31 30.3636C8.16144 29.123 4 26.7382 4 24C4 21.2618 8.16144 18.877 14.31 17.6364C8.16144 16.3957 4 14.0109 4 11.2727C4 7.25611 12.9543 4 24 4C35.0457 4 44 7.25611 44 11.2727Z" fill="currentColor"></path>
+                </svg>
+              </div>
+              <h2 class="text-text-light text-lg font-bold leading-tight tracking-[-0.015em]">LE QUOC THINH</h2>
+            </div>
+            <div class="flex flex-1 items-center justify-end gap-8">
+              <div class="hidden items-center gap-9 md:flex">
+                <a class="text-text-light hover:text-primary text-sm font-medium leading-normal transition-colors" href="#about">About</a>
+                <a class="text-text-light hover:text-primary text-sm font-medium leading-normal transition-colors" href="#skills">Skills</a>
+                <a class="text-text-light hover:text-primary text-sm font-medium leading-normal transition-colors" href="#blog">Blog</a>
+                <a class="text-text-light hover:text-primary text-sm font-medium leading-normal transition-colors" href="#contact">Contact</a>
+              </div>
+             <button id="themeToggle"
+  class="relative flex h-10 w-10 items-center justify-center rounded-full bg-surface-dark text-text-light hover:bg-white/20">
+  
+  <span class="material-symbols-outlined absolute transition-all dark:opacity-0 dark:rotate-90">
+    light_mode
+  </span>
+  <span class="material-symbols-outlined absolute opacity-0 rotate-90 transition-all dark:opacity-100 dark:rotate-0">
+    dark_mode
+  </span>
+</button>
+
+            </div>
+          </header>
+
+          <main class="flex flex-col gap-16 md:gap-24 lg:gap-32 px-4 py-16 md:px-10 md:py-24">
+            <!-- Hero Section -->
+            <section class="@container relative" id="hero">
+              <div class="flex flex-col-reverse gap-10 @[864px]:flex-row @[864px]:items-center relative">
+                <!-- left text -->
+                <div class="flex flex-col gap-6 text-left @[864px]:w-1/2 @[864px]:gap-8 @[864px]:justify-center z-20">
+                  <div class="flex flex-col gap-4">
+                    <h1 class="text-4xl font-black leading-tight tracking-tighter
+                    bg-gradient-to-r from-[#0B63D3] to-[#FF7A59]
+                    bg-clip-text text-transparent
+                    dark:bg-none dark:text-text-light
+                    md:text-5xl lg:text-6xl glow-pulse">
+                      I build scalable web apps &amp; delightful UX.
+                    </h1>
+
+
+                    <!-- typing subtitle -->
+                    <h2 id="hero-sub" class="text-base font-normal leading-normal text-text-muted-dark md:text-lg typing">
+                      <!-- will be filled by typing script -->
+                      <span class="typed-text" aria-hidden="true"></span><span class="caret" aria-hidden="true"></span>
+                      <span class="sr-only">A passionate full-stack developer transforming ideas into robust and user-friendly digital experiences.</span>
+                    </h2>
+                  </div>
+
+                  <div class="flex flex-wrap gap-3">
+                    <a
+                       href="https://github.com/Laufeyson222"
+                        target="_blank"
+                       rel="noopener noreferrer"
+                        class="ripple-wrap flex h-12 min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded bg-primary px-5 text-base font-bold leading-normal tracking-[0.015em] text-white shadow-lg shadow-primary/20 transition-transform hover:-translate-y-1"
+                        data-ripple
+                        aria-label="View my GitHub projects"
+  >
+    <span class="truncate">View Projects</span>
+  </a>
+
+                    <button class="ripple-wrap flex h-12 min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded bg-surface-dark px-5 text-base font-bold leading-normal tracking-[0.015em] text-text-light transition-transform hover:-translate-y-1" data-ripple>
+                      <span class="truncate">Download CV</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- right mockup / floating image -->
+                <div class="w-full @[864px]:w-1/2 relative z-10">
+                  <div class="aspect-square w-full rounded-xl p-2 hero-frame floaty tilt" id="hero-mockup" style="transform-origin:center; will-change:transform;">
+                    <div class="h-full w-full rounded bg-background-dark bg-cover bg-center bg-no-repeat" data-alt="Abstract representation of code blocks and UI components floating in a 3D space." style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBhFBKGobJSUYcg8smKE3VjEHeHdLveCwOVtkXv2E8q_RjLSPaNMRQpGvcetELtq_hEQha7mwfTGnMnhesPQMu2DPVccZVoravqjThY_ayVuHegHubmLjnhUg0lJoERHU3wHwFxy0sATh0Z3kgOphZeDsWQhgc5f8fLLfLuUrtZ-tyzGMNfUPPqgBVKumSt26lGyj0dka4T8vI-lD-2RfYK5ta9MAIJjwN83yk1WipFLvvF9sTjseALswkP7mbKxBIBbyut-aCKmdLe");'></div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- About Section -->
+            <section class="flex flex-col gap-8 relative" id="about">
+              <div class="flex flex-col items-start gap-4 @container md:flex-row md:items-center z-10">
+                <div class="flex w-full flex-col gap-4 @[520px]:flex-row @[520px]:items-center">
+                  <div class="flex items-center gap-6">
+                    <div class="min-h-32 w-32 min-w-32 rounded-full bg-cover bg-center bg-no-repeat ring-2 ring-primary/20" data-alt="A professional headshot of the developer, smiling." style='background-image: url("./Untitled-4998.jpg");'></div>
+                    <div class="flex flex-col justify-center gap-2">
+                      <h2 class="text-[22px] font-bold leading-tight tracking-[-0.015em] text-text-light">A Bit About Me</h2>
+                      <p class="text-base font-normal leading-relaxed text-text-muted-dark">I'm a Full-Stack Developer with a passion for creating efficient, scalable, and user-centric applications. My journey in tech is driven by a constant desire to learn and solve complex problems, one line of code at a time.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex flex-wrap gap-4 z-10">
+                <div class="flex flex-1 basis-[160px] flex-col gap-2 rounded border border-[#314968] bg-surface-dark p-4 text-center card-hover tilt">
+                  <p class="text-3xl font-bold tracking-tight text-text-light">1</p>
+                  <p class="text-sm font-normal leading-normal text-text-muted-dark">Years Experience</p>
+                </div>
+                <div class="flex flex-1 basis-[160px] flex-col gap-2 rounded border border-[#314968] bg-surface-dark p-4 text-center card-hover tilt">
+                  <p class="text-3xl font-bold tracking-tight text-text-light">5</p>
+                  <p class="text-sm font-normal leading-normal text-text-muted-dark">Projects</p>
+                </div>
+                <div class="flex flex-1 basis-[160px] flex-col gap-2 rounded border border-[#314968] bg-surface-dark p-4 text-center card-hover tilt">
+                  <p class="text-3xl font-bold tracking-tight text-text-light">1</p>
+                  <p class="text-sm font-normal leading-normal text-text-muted-dark">Companies Worked With</p>
+                </div>
+              </div>
+            </section>
+
+         
+
+            <!-- Skills Section -->
+            <section class="flex flex-col gap-8 relative" id="skills">
+              <h2 class="text-[22px] font-bold leading-tight tracking-[-0.015em] text-text-light">Skills &amp; Expertise</h2>
+              <div class="grid grid-cols-1 gap-8 md:grid-cols-3">
+                <div class="flex flex-col gap-4 rounded-xl border border-white/10 bg-surface-dark p-6">
+                  <h3 class="text-lg font-bold text-white">Expert</h3>
+                  <div class="flex flex-col gap-3">
+                    <div class="flex items-center justify-between">
+                      <span class="text-sm text-text-light">JavaScript</span>
+                      <span class="text-sm text-text-muted-dark">95%</span>
+                    </div>
+                    <div class="progress-track"><div class="progress-fill bg-primary" data-fill="95%"></div></div>
+                    <div class="flex items-center justify-between">
+                      <span class="text-sm text-text-light">React</span>
+                      <span class="text-sm text-text-muted-dark">90%</span>
+                    </div>
+                    <div class="progress-track"><div class="progress-fill bg-primary" data-fill="90%"></div></div>
+                  </div>
+                </div>
+
+                <div class="flex flex-col gap-4 rounded-xl border border-white/10 bg-surface-dark p-6">
+                  <h3 class="text-lg font-bold text-white">Comfortable</h3>
+                  <div class="flex flex-col gap-3">
+                    <div class="flex items-center justify-between">
+                      <span class="text-sm text-text-light">Next.js</span>
+                      <span class="text-sm text-text-muted-dark">80%</span>
+                    </div>
+                    <div class="progress-track"><div class="progress-fill bg-secondary" data-fill="80%"></div></div>
+                    <div class="flex items-center justify-between">
+                      <span class="text-sm text-text-light">Docker</span>
+                      <span class="text-sm text-text-muted-dark">75%</span>
+                    </div>
+                    <div class="progress-track"><div class="progress-fill bg-secondary" data-fill="75%"></div></div>
+                  </div>
+                </div>
+
+                <div class="flex flex-col gap-4 rounded-xl border border-white/10 bg-surface-dark p-6">
+                  <h3 class="text-lg font-bold text-white">Learning</h3>
+                  <div class="flex flex-col gap-3">
+                    <div class="flex items-center justify-between">
+                      <span class="text-sm text-text-light">Go</span>
+                      <span class="text-sm text-text-muted-dark">40%</span>
+                    </div>
+                    <div class="progress-track"><div class="progress-fill bg-white/20" data-fill="40%"></div></div>
+                    <div class="flex items-center justify-between">
+                      <span class="text-sm text-text-light">Kubernetes</span>
+                      <span class="text-sm text-text-muted-dark">30%</span>
+                    </div>
+                    <div class="progress-track"><div class="progress-fill bg-white/20" data-fill="30%"></div></div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- Contact Section -->
+            <section class="flex flex-col items-center gap-8 rounded-xl bg-surface-dark p-8 md:p-12 lg:p-16 relative" id="contact">
+              <div class="text-center">
+                <h2 class="text-3xl font-bold text-text-light md:text-4xl">Let's Build Together</h2>
+                <p class="mt-2 text-text-muted-dark">Have a project in mind? I'd love to hear about it.</p>
+              </div>
+
+              <form class="w-full max-w-lg space-y-4" onsubmit="handleContact(event)">
+                <div>
+                  <label class="sr-only" for="name">Name</label>
+                  <input class="w-full rounded border-0 bg-background-dark px-4 py-3 text-text-light ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-primary" id="name" placeholder="Your Name" type="text" required/>
+                </div>
+                <div>
+                  <label class="sr-only" for="email">Email</label>
+                  <input class="w-full rounded border-0 bg-background-dark px-4 py-3 text-text-light ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-primary" id="email" placeholder="Your Email" type="email" required/>
+                </div>
+                <div>
+                  <label class="sr-only" for="message">Message</label>
+                  <textarea class="w-full rounded border-0 bg-background-dark px-4 py-3 text-text-light ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-primary" id="message" placeholder="Your Message" rows="4" required></textarea>
+                </div>
+                <button class="flex w-full h-12 cursor-pointer items-center justify-center overflow-hidden rounded bg-primary px-5 text-base font-bold leading-normal tracking-[0.015em] text-white shadow-lg shadow-primary/20 transition-transform hover:-translate-y-1 ripple-wrap" type="submit" data-ripple>
+                  <span class="truncate">Hire Me</span>
+                </button>
+              </form>
+
+              <div class="flex items-center gap-6">
+                <a href="https://github.com/Laufeyson222" class="text-text-muted-dark transition-colors hover:text-primary" data-alt="GitHub Profile" href="#"><svg aria-hidden="true" class="h-6 w-6" fill="currentColor" viewbox="0 0 24 24"><path clip-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.165 6.839 9.49.5.092.682-.217.682-.482 0-.237-.009-.868-.014-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.031-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.203 2.398.1 2.651.64.7 1.03 1.595 1.03 2.688 0 3.848-2.338 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.001 10.001 0 0022 12c0-5.523-4.477-10-10-10z" fill-rule="evenodd"></path></svg></a>
+                <a href="https://github.com/Laufeyson222" class="text-text-muted-dark transition-colors hover:text-primary" data-alt="LinkedIn Profile" href="#"><svg aria-hidden="true" class="h-6 w-6" fill="currentColor" viewbox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"></path></svg></a>
+                <a href="https://www.facebook.com/thinh.le.908126" target="_blank" rel="noopener noreferrer" class="text-text-muted-dark transition-colors hover:text-primary hover:scale-110 transition-transform duration-200" aria-label="Facebook Profile"> <svg aria-hidden="true" class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">  <path d="M22.675 0h-21.35C.597 0 0 .597 0 1.326v21.348C0 23.403.597 24 1.326 24h11.495v-9.294H9.691V11.01h3.13V8.413c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.795.143v3.24l-1.918.001c-1.504 0-1.796.716-1.796 1.765v2.315h3.587l-.467 3.696h-3.12V24h6.116C23.403 24 24 23.403 24 22.674V1.326C24 .597 23.403 0 22.675 0z"/> </svg></a>
+
+            </section>
+
+          </main>
+
+          <!-- Footer -->
+          <footer class="mt-auto border-t border-white/10 px-4 py-6 text-center text-sm text-text-muted-dark md:px-10">
+            <div class="flex flex-col items-center justify-between gap-4 sm:flex-row">
+              <p>© 2026 Le Quoc Thinh. All rights reserved.</p>
+              <div class="flex gap-4">
+                <a class="hover:text-primary" href="#">About</a>
+                <a class="hover:text-primary" href="#">Projects</a>
+                <a class="hover:text-primary" href="#">Contact</a>
+              </div>
+            </div>
+          </footer>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- --------------------------
+       Javascript for interactivity
+       - typing text
+       - ripple effect
+       - tilt 3D
+       - progress fill on view
+       - theme toggle
+       - basic contact handler
+     -------------------------- -->
+  <script>
+    // ---------- Utility: prefers-reduced-motion ----------
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // ---------- Typing Effect ----------
+    (function typingEffect() {
+      const texts = [
+        "A passionate full-stack developer transforming ideas into robust and user-friendly digital experiences.",
+      ];
+      const el = document.querySelector('.typed-text');
+      const caret = document.querySelector('.typing .caret');
+      if(!el) return;
+      let ti = 0, char = 0;
+      const typeNext = () => {
+        if (reduceMotion) { el.textContent = texts[0]; if(caret) caret.style.display='none'; return; }
+        if (ti >= texts.length) { // loop once then stop
+          return;
+        }
+        const target = texts[ti];
+        if (char < target.length) {
+          el.textContent += target.charAt(char);
+          char++;
+          setTimeout(typeNext, 14 + Math.random()*30);
+        } else {
+          // keep caret blinking, don't loop fast
+          ti++;
+        }
+      };
+      setTimeout(typeNext, 400);
+    })();
+
+    // ---------- Ripple Effect on buttons ----------
+    (function rippleInit(){
+      document.querySelectorAll('[data-ripple]').forEach(btn => {
+        btn.addEventListener('click', function (e) {
+          if (reduceMotion) return;
+          const rect = this.getBoundingClientRect();
+          const circle = document.createElement('span');
+          const size = Math.max(rect.width, rect.height) * 1.2;
+          circle.className = 'ripple';
+          circle.style.width = circle.style.height = size + 'px';
+          circle.style.left = (e.clientX - rect.left - size/2) + 'px';
+          circle.style.top = (e.clientY - rect.top - size/2) + 'px';
+          this.appendChild(circle);
+          // remove after animation
+          setTimeout(() => circle.remove(), 700);
+        });
+      });
+    })();
+
+    // ---------- 3D Tilt for elements with data-tilt ----------
+    (function tiltInit(){
+      const tiltEls = document.querySelectorAll('[data-tilt]');
+      tiltEls.forEach(el => {
+        const root = el;
+        let rect = null;
+        function onMove(e){
+          rect = rect || root.getBoundingClientRect();
+          const x = (e.clientX - rect.left) / rect.width;
+          const y = (e.clientY - rect.top) / rect.height;
+          const rx = (y - 0.5) * 8; // rotation X
+          const ry = (x - 0.5) * -12; // rotation Y
+          root.style.transform = `perspective(1000px) rotateX(${rx}deg) rotateY(${ry}deg) translateZ(6px)`;
+        }
+        function onLeave(){
+          root.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateZ(0px)';
+        }
+        if (!reduceMotion) {
+          root.addEventListener('mousemove', onMove);
+          root.addEventListener('mouseleave', onLeave);
+        }
+      });
+    })();
+
+    // ---------- Parallax/tilt for hero mockup (subtle) ----------
+    (function heroTilt(){
+      const hero = document.getElementById('hero-mockup');
+      if (!hero || reduceMotion) return;
+      hero.addEventListener('mousemove', function(e){
+        const rect = hero.getBoundingClientRect();
+        const x = (e.clientX - rect.left) / rect.width;
+        const y = (e.clientY - rect.top) / rect.height;
+        const rx = (y - 0.5) * 6;
+        const ry = (x - 0.5) * -8;
+        hero.style.transform = `translateZ(0) rotateX(${rx}deg) rotateY(${ry}deg)`;
+      });
+      hero.addEventListener('mouseleave', function(){ hero.style.transform = ''; });
+    })();
+
+    // ---------- Progress bars animate when visible ----------
+    (function progressOnView(){
+      const fills = document.querySelectorAll('.progress-fill');
+      if (!fills.length) return;
+      const io = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const el = entry.target;
+            const val = el.getAttribute('data-fill') || '0%';
+            el.style.width = val;
+            io.unobserve(el);
+          }
+        });
+      }, { threshold: 0.35 });
+      fills.forEach(f => io.observe(f));
+    })();
+
+    // ---------- Simple theme toggle (dark/light) ----------
+    (function themeToggle(){
+      const btn = document.getElementById('themeToggle');
+      if(!btn) return;
+      btn.addEventListener('click', () => {
+        const html = document.documentElement;
+        if (html.classList.contains('dark')) {
+          html.classList.remove('dark');
+          localStorage.setItem('site-theme','light');
+        } else {
+          html.classList.add('dark');
+          localStorage.setItem('site-theme','dark');
+        }
+      });
+      // initial
+      const saved = localStorage.getItem('site-theme');
+      if (saved === 'dark') document.documentElement.classList.add('dark');
+      if (saved === 'light') document.documentElement.classList.remove('dark');
+    })();
+
+    // ---------- Basic contact form handler (demo) ----------
+    function handleContact(e){
+      e.preventDefault();
+      // simple demo feedback; integrate with real endpoint as needed
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const message = document.getElementById('message').value.trim();
+      if (!name || !email || !message) {
+        alert('Please fill all fields.');
+        return;
+      }
+      // show a temporary success state (better: toast)
+      alert('Thanks ' + name + '! Your message was received (demo).');
+      e.target.reset();
+    }
+
+    // ---------- Accessibility: hide animated background if user reduced motion ----------
+    if (reduceMotion) {
+      document.querySelectorAll('.neon-scanline, .particles, .floaty, .glow-pulse').forEach(n => {
+        n.style.display = 'none';
+      });
+    }
+    //chuyển theme mượt
+    
+  </script>
+</body>
+</html>
